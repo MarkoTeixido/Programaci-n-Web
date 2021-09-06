@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="estilos.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <title>Marko To-Do List</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="screen">
+        <button class="btn-fullScreen" onClick="toggleFullscreen(this)"><i class="fa fa-expand"></i></button>
+      </div>
+      <h1>Lista de Tareas</h1>
+      <div class="search">
+          <form>
+              <input type="text" placeholder="Agregar tarea...">
+              <button class="btn-add">ADD</button>
+          </form>
+      </div>
+      <div id="li-container">
+          <ul>
+            
+          </ul>
+      </div>
+      <div class="empty">
+          <p>No hay tareas pendientes.</p>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
