@@ -73,7 +73,7 @@ function addShareBtn() {
       text: temp,
       url: document.URL
   }).then(
-      () => window.alert("¡Tarea Compartida!")
+      () => console.log("¡Tarea Compartida!")
   ).catch(
       () => window.alert("Ups... Hubo Un Error al Compartir.")
   )
