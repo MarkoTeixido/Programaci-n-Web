@@ -6,8 +6,8 @@ let temp;
 let tasks = [];
 let geo = null;
 
-function update_storage(){
-    sessionStorage.setItem('tasks',JSON.stringify(tasks));
+function update_storage() {
+  sessionStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 addBtn.addEventListener("click", (e) => {
@@ -21,16 +21,16 @@ addBtn.addEventListener("click", (e) => {
     const p = document.createElement("p");
     p.textContent = text;
 
-    const id = tasks.length === 0 ? 0 : tasks[tasks.length -1].id + 1;
+    const id = tasks.length === 0 ? 0 : tasks[tasks.length - 1].id + 1;
     li.setAttribute("data-id", id);
     tasks.push({
-        id: id,
-        task: text,
-        done: false,
-        geo: geo
+      id: id,
+      task: text,
+      done: false,
+      geo: geo
     })
     update_storage();
-    
+
     ul.appendChild(li);
     li.appendChild(addCheckboxBtn());
     li.appendChild(p);
@@ -45,20 +45,35 @@ addBtn.addEventListener("click", (e) => {
 
 function toggleFullscreen(button) {
   if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      button.innerHTML = '<i class="fa fa-compress"></i>';
+    document.documentElement.requestFullscreen();
+    button.innerHTML = '<i class="fa fa-compress"></i>';
   } else if (document.exitFullscreen) {
-      document.exitFullscreen();
-      button.innerHTML = '<i class="fa fa-expand"></i>';
+    document.exitFullscreen();
+    button.innerHTML = '<i class="fa fa-expand"></i>';
   }
 }
 
-function addCheckboxBtn() {
+//en esta función hice varios cambios...
+function addCheckboxBtn(status) { //recibo status para saber si el checbox tiene q dibujarse marcado o no
   const checkBtn = document.createElement("input");
   checkBtn.type = "checkbox";
   checkBtn.className = "btn-checkbox";
 
-  update_storage();
+  if(status){
+    checkBtn.checked = true;
+  }
+  checkBtn.addEventListener("change", (e) => {
+    let id = parseInt(e.target.closest("li").getAttribute("data-id")); // obtengo el li para poder saber el id y con eso trabajar en el array
+
+    //actualizo el estado en el array
+    if(e.target.checked) {
+      tasks[id-1].done = true;
+    } else {
+      tasks[id-1].done = false;
+    }
+    //actualizo el estado en storage
+    update_storage();
+  });
 
   return checkBtn;
 }
@@ -89,11 +104,11 @@ function addShareBtn() {
       title: "Compartir Tarea",
       text: temp,
       url: document.URL
-  }).then(
+    }).then(
       () => console.log("¡Tarea Compartida!")
-  ).catch(
+    ).catch(
       () => window.alert("Ups... Hubo Un Error al Compartir.")
-  )
+    )
   });
 
   return shareBtn;
@@ -105,11 +120,13 @@ function addDeleteBtn() {
   deleteBtn.className = "btn-delete";
 
   deleteBtn.addEventListener("click", (e) => {
-    const item = e.target.parentElement;
-    const nuevoid = item.getAttribute("data-id");
-    //sessionStorage.removeItem(nuevoid);
-    tasks.splice(tasks.findIndex(nuevoid), 1);
-    ul.removeChild(item); 
+    const item = e.target.closest("li"); // busco el li mas cercano (no se bien en que nivel estará) para poder manipularlo
+    console.log(item);
+    const nuevoid = parseInt(item.getAttribute("data-id")); // busco el id desde el atributo data-id y lo parseo a entero
+    console.log(nuevoid);
+    tasks = tasks.filter((e) => e.id !== nuevoid); // filtro el array de tareas y elimino el elemento que tenga el id igual al id que busco
+    console.log("tasks: ", tasks); // muestro el array de tareas
+    ul.removeChild(item);
     update_storage();
 
     const items = document.querySelectorAll("li");
@@ -123,23 +140,25 @@ function addDeleteBtn() {
 }
 
 window.onload = () => {
-    if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            geo = {lat: position.coords.latitude, lon: position.coords.longitude}
-        });
-    }
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      geo = { lat: position.coords.latitude, lon: position.coords.longitude }
+    });
+  }
 
-    tasks = JSON.parse(sessionStorage.getItem("tasks")) || [];
+  tasks = JSON.parse(sessionStorage.getItem("tasks")) || [];
 
-    for (let i = 0; i < tasks.length; i++) {
-        const li = document.createElement("li");
-        const p = document.createElement("p");
-    
-        ul.appendChild(li);
-        li.appendChild(addCheckboxBtn());
-        li.appendChild(p);
-        li.appendChild(addClipboardBtn());
-        li.appendChild(addShareBtn());
-        li.appendChild(addDeleteBtn());
-    }
+  for (let i = 0; i < tasks.length; i++) {
+    const li = document.createElement("li");
+    li.setAttribute("data-id", tasks[i].id); // busco el id en el objeto y lo cargo en mi elemento del dom
+    const p = document.createElement("p");
+    p.textContent = tasks[i].task; // busco el texto en el objeto y se lo cargo al elemento del dom
+    li.appendChild(addCheckboxBtn(tasks[i].done));
+    li.appendChild(p);
+    li.appendChild(addClipboardBtn());
+    li.appendChild(addShareBtn());
+    li.appendChild(addDeleteBtn());
+
+    ul.appendChild(li);
+  }
 }
